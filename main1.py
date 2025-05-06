@@ -4,7 +4,7 @@ from datetime import datetime
 import csv
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from tkcalendar import DateEntry
+from tkcalendar import DateEntry # type: ignore
 
 class User:
     def __init__(self):
@@ -44,7 +44,7 @@ class User:
 
 class Expense:
     def __init__(self, date, category, amount, is_repeated, payment_method):
-        self.date = datetime.strptime(date, '%Y-%m-%d')
+        self.date = datetime.strptime(date.split()[0], '%Y-%m-%d')
         self.category = category
         self.amount = amount
         self.is_repeated = is_repeated
@@ -74,7 +74,7 @@ class ExpenseTracker:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for expense in self.expenses:
-                writer.writerow({'Date': expense.date, 'Category': expense.category, 'Amount': expense.amount,
+                writer.writerow({'Date': expense.date.strftime('%Y-%m-%d'), 'Category': expense.category, 'Amount': expense.amount,
                                  'Repeated': 'True' if expense.is_repeated else 'False',
                                  'Payment Method': expense.payment_method})
 
@@ -108,7 +108,7 @@ class ExpenseTracker:
         self.save_expenses()
 
     def get_expenses_by_month(self, month):
-        return [expense for expense in self.expenses if expense.date.startswith(month)]
+        return [expense for expense in self.expenses if expense.date.strftime('%Y-%m').startswith(month)]
 
 class ExpenseGUI:
     def __init__(self, root):
@@ -242,40 +242,44 @@ class ExpenseGUI:
         # Format and display the expenses in the text widget
         text_widget.insert(tk.END, "{:<15}{:<15}{:<15}{:<15}{:<15}\n".format("Date", "Category", "Amount", "Repeated", "Payment Method"))
         for expense in expenses:
-            text_widget.insert(tk.END, "{:<15}{:<15}{:<15.2f}{:<15}{:<15}\n".format(expense.date, expense.category, expense.amount, expense.is_repeated, expense.payment_method))
+            text_widget.insert(tk.END, "{:<15}{:<15}{:<15.2f}{:<15}{:<15}\n".format(expense.date.strftime('%Y-%m-%d'), expense.category, expense.amount, expense.is_repeated, expense.payment_method))
 
         # Make the text widget read-only
         text_widget.config(state=tk.DISABLED)
 
-        def view_monthly_expenses(self):
-            # Calculate monthly expenses
-            monthly_expenses = {}
-            for expense in self.tracker.expenses:
-                expense_month = expense.date.strftime('%Y-%m')
-                if expense_month in monthly_expenses:
-                    monthly_expenses[expense_month] += expense.amount
-                else:
-                    monthly_expenses[expense_month] = expense.amount
+    def view_monthly_expenses(self):
+        # Calculate monthly expenses
+        monthly_expenses = {}
+        for expense in self.tracker.expenses:
+            # Extract the year and month from the expense's date
+            expense_month = expense.date.strftime('%Y-%m')
+            if expense_month in monthly_expenses:
+                monthly_expenses[expense_month] += expense.amount
+            else:
+                monthly_expenses[expense_month] = expense.amount
 
-            # Sort months chronologically
-            sorted_months = sorted(monthly_expenses.keys())
-            amounts = [monthly_expenses[month] for month in sorted_months]
-            
-            # Plotting
-            fig, ax = plt.subplots(figsize=(10, 6))
-            ax.bar(sorted_months, amounts, color='skyblue')
-            ax.set_title('Monthly Expenses')
-            ax.set_xlabel('Month')
-            ax.set_ylabel('Total Amount')
-            ax.set_xticklabels(sorted_months, rotation=45, ha='right')
-            
-            # Embed plot into Tkinter window
-            chart_window = tk.Toplevel(self.root)
-            chart_window.title("Monthly Expenses Chart")
-            canvas = FigureCanvasTkAgg(fig, master=chart_window)
-            canvas.draw()
-            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
+        print("Monthly Expenses:", monthly_expenses)
+
+        # Plot monthly expenses
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.bar(monthly_expenses.keys(), monthly_expenses.values(), color='blue')
+        ax.set_xlabel('Month')
+        ax.set_ylabel('Total Expenses')
+        ax.set_title('Monthly Expenses')
+        plt.xticks(rotation=45, ha='right')
+
+        # Create a new window to display the plot
+        plot_window = tk.Toplevel(self.root)
+        plot_window.title("Monthly Expenses")
+
+        # Create a Tkinter canvas widget for the plot
+        canvas = FigureCanvasTkAgg(fig, master=plot_window)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+        # Display the plot
+        plt.tight_layout()
+
     def add_expense(self):
         # Check if a category is selected
         selected_category = self.categories_combobox.get()
@@ -285,9 +289,15 @@ class ExpenseGUI:
 
         # Get expense details
         amount = float(self.amount_entry.get())
-        date = self.date_entry.get_date()
+        date = self.date_entry.get_date().strftime('%Y-%m-%d')
         is_repeated = self.is_repeated_var.get()
         payment_method = self.payment_method_combobox.get()
+
+        # Check if the expense exceeds the budget
+        if selected_category in self.tracker.budgets:
+            budget = self.tracker.budgets[selected_category]
+            if amount > budget:
+                messagebox.showwarning("Warning", f"The amount exceeds the budget for {selected_category}.")
 
         # Create an Expense object
         expense = Expense(date, selected_category, amount, is_repeated, payment_method)
@@ -299,11 +309,6 @@ class ExpenseGUI:
         self.clear_entry_fields()
 
         messagebox.showinfo("Expense Added", "Expense has been successfully added.")
-
-    def clear_entry_fields(self):
-        self.amount_entry.delete(0, tk.END)
-        self.is_repeated_var.set(False)
-        self.payment_method_combobox.set('')
 
 def main():
     global user
