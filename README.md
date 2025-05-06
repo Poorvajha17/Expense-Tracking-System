@@ -1,4 +1,4 @@
-# Expense Tracker Application
+# Expense Tracking System
 
 ## Description
 
