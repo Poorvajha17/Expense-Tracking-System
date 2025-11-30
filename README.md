@@ -1,27 +1,59 @@
 # Expense Tracking System
 
-## Description
+A simple and intuitive desktop application built using **Python** and **Tkinter GUI** for tracking daily expenses, managing budgets, and visualizing spending patterns. The system supports user login, multiple expense categories, and persistent storage for long-term financial tracking.
 
-This is a simple **Expense Tracker** application built using **Python** with a **Tkinter** GUI for managing expenses and setting budgets. The app allows users to log in, track their expenses, view budgets, and visualize monthly expenses. It supports multiple categories for expenses and payment methods. Users can also set and view their budget for each category.
+## Overview
+
+The Expense Tracking System helps users record, monitor, and analyze their expenses efficiently. With a clean Tkinter interface, users can log expenses across various categories, set monthly budgets, and visualize spending trends. All data is saved in CSV files, ensuring persistence across sessions.
 
 ## Features
 
-- **Login System**: Allows users to log in using their credentials saved in a text file.
-- **Expense Tracking**: Track expenses with categories, amount, date, payment method, and repeatability.
-- **Budget Management**: Set and manage budgets for various categories.
-- **Monthly Expense Visualization**: View a graphical representation of monthly expenses.
-- **Expense View**: View all added expenses and filter by month.
-- **Persistent Data**: Saves expenses and budgets to CSV files, making data persistent across sessions.
+**Login System**  
+- Secure user login using credentials stored in a text file  
+- Personalized expense tracking for each user  
+
+**Expense Tracking**  
+- Add expenses with:  
+  - Category  
+  - Amount  
+  - Date (via calendar widget)  
+  - Payment method  
+  - Repeatability option  
+- View all expenses with month-wise filtering  
+
+**Monthly Expense Visualization**  
+- Beautiful bar charts generated using **matplotlib**  
+- Clear view of spending patterns per month  
+
+**Persistent Storage**  
+- All expenses and budgets saved in CSV files  
+- Data preserved even after closing the app  
+
+**Budget Management**  
+- Set monthly budget limits for each category  
+- Compare actual spending vs. budgeted amounts  
 
 ## Requirements
 
-- Python 3.x
-- Tkinter (for GUI)
-- matplotlib (for expense visualization)
-- tkcalendar (for date entry)
-- csv (for storing expenses and budgets)
+- Python 3.x  
+- Tkinter (included with Python)  
+- matplotlib  
+- tkcalendar  
+- csv (built-in module)  
 
-You can install the required libraries using `pip`:
-
+### Install required libraries:
+```bash
 pip install matplotlib tkcalendar
+```
 
+## Installation
+- Clone the Repository
+```bash
+git clone https://github.com/Poorvajha17/Expense-Tracking-System.git
+```
+
+- Install Dependencies
+- Run the Application
+```bash
+python main1.py
+```
